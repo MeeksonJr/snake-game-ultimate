@@ -46,19 +46,28 @@ A beautiful, feature-rich Snake game built with Python and Pygame, complete with
 
 ## ?? Installation & Running
 
-### Option 1: Run Locally (Recommended)
+### Option 1: Run Locally (Recommended for Music)
+
+**Note**: Use `python3` instead of `python` on Linux/WSL.
 
 1. Install dependencies:
 ```bash
 pip install -r requirements.txt
+# or
+pip install pygame
 ```
 
 2. Run the game:
 ```bash
-python snake_game.py
+python3 snake_game.py
 ```
 
-**Note**: Make sure `Dreamin'.mp3` is in the same directory as `snake_game.py` for background music.
+**WSL2 Audio Note**: WSL2 doesn't have audio support by default. To hear music:
+- **Option A**: Run on Windows directly (not in WSL)
+- **Option B**: Set up audio passthrough in WSL2 (complex setup)
+- **Option C**: Use Docker (game works but no audio)
+
+**Note**: Make sure `Now It Rains.mp3` or `Dreamin'.mp3` is in the same directory as `snake_game.py` for background music.
 
 ### Option 2: Run with Docker
 
@@ -165,16 +174,26 @@ docker-compose up --build
 ## ?? Troubleshooting
 
 ### Music Not Playing
-- Ensure `Dreamin'.mp3` is in the same directory as `snake_game.py`
+
+**Local (WSL2/Linux)**:
+- WSL2 doesn't have audio support by default - this is expected
+- To hear music, run the game on Windows directly (not in WSL)
+- Or set up PulseAudio/WSLg for audio passthrough (advanced)
+- Ensure music files are in the same directory: `Now It Rains.mp3` or `Dreamin'.mp3`
 - Check that pygame.mixer is properly initialized
-- Game will run without music if file is missing
+- Game will run without music if audio is unavailable
+
+**Docker**:
+- Docker containers don't have audio devices by default - this is expected
+- Music will only play when running locally (outside Docker)
+- See "Docker Audio Issues" section below
 
 ### Docker Audio Issues
-- Audio devices are not available in Docker containers by default
-- The game will automatically detect this and run without music
-- You'll see a warning message: "Warning: Audio not available. Game will run without music."
-- This is normal and the game will function perfectly without audio
-- **The error you saw is now fixed** - the game handles missing audio gracefully
+- **Docker containers don't have audio devices by default** - This is expected behavior
+- Music will **only play when running locally** (outside Docker): `python snake_game.py`
+- In Docker, you'll see: "Warning: Audio not available. Game will run without music."
+- This is normal - the game functions perfectly without audio
+- To hear music, run the game locally instead of in Docker
 
 ### Docker GUI Issues
 If pygame doesn't display in Docker, run locally:
