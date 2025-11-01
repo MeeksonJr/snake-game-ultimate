@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  snake-game:
+    build: .
+    container_name: snake-game
+    image: snake-game:latest
+    stdin_open: true
+    tty: true
+    # Map X11 display for GUI (needed for pygame in Docker)
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    network_mode: host
+    # Alternative: Run without GUI (headless) - uncomment if X11 doesn't work
+    # command: python -c "print('Snake game requires GUI. Run locally with: python snake_game.py')"
