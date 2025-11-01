@@ -80,7 +80,7 @@ docker run -it --rm \
 ```
 
 **Note**: 
-- Audio may not work in Docker containers. The game will run without music if audio is unavailable.
+- **Audio/Music**: Docker containers don't have audio devices by default. Music will only play when running locally (not in Docker).
 - For WSL2 with Windows, you may need to:
   - Install an X server (like VcXsrv or X410)
   - Set `DISPLAY=localhost:0.0` or configure X11 forwarding

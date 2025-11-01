@@ -21,8 +21,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy game file
 COPY snake_game.py .
 
-# Copy music file (optional - comment out if file doesn't exist)
-# Game will work without music, just won't play background music
+# Copy music files (optional - game works without them)
+COPY "Now It Rains.mp3"* ./
 COPY "Dreamin'.mp3"* ./
 
 # Run the game
