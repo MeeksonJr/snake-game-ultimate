@@ -20,11 +20,15 @@ pygame.init()
 
 # Initialize mixer with error handling for environments without audio
 try:
-    pygame.mixer.init()
+    # Initialize mixer with better settings for music playback
+    pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
     AUDIO_AVAILABLE = True
-except pygame.error:
+except pygame.error as e:
     AUDIO_AVAILABLE = False
-    print("Warning: Audio not available. Game will run without music.")
+    print(f"Warning: Audio not available. Game will run without music. Error: {e}")
+except Exception as e:
+    AUDIO_AVAILABLE = False
+    print(f"Warning: Audio initialization failed. Game will run without music. Error: {e}")
 
 # Constants
 WINDOW_WIDTH = 800
@@ -66,7 +70,8 @@ RIGHT = (1, 0)
 
 # Score file and music file
 SCORE_FILE = "high_scores.json"
-MUSIC_FILE = "Dreamin'.mp3"
+# Try multiple music files as fallback
+MUSIC_FILES = ["Now It Rains.mp3", "Dreamin'.mp3"]
 
 # Game states
 class GameState(Enum):
@@ -437,6 +442,13 @@ class Game:
         self.time_slow_factor = 1.0
         
         self.reset_game()
+        
+        # Ensure music starts playing
+        if AUDIO_AVAILABLE and self.music_loaded:
+            pygame.time.wait(100)  # Small delay to ensure mixer is ready
+            if not pygame.mixer.music.get_busy():
+                pygame.mixer.music.play(-1)
+                print("Music restarted after game initialization")
     
     def load_music(self):
         """Load and play background music"""
@@ -446,20 +458,35 @@ class Game:
             return
             
         try:
-            music_path = MUSIC_FILE
-            if os.path.exists(music_path):
+            # Try to find and load any available music file
+            music_path = None
+            for music_file in MUSIC_FILES:
+                if os.path.exists(music_file):
+                    music_path = music_file
+                    break
+            
+            if music_path:
                 pygame.mixer.music.load(music_path)
-                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.set_volume(0.7)  # Increased volume
                 pygame.mixer.music.play(-1)  # Loop forever
                 self.music_loaded = True
                 print(f"Music loaded successfully: {music_path}")
+                
+                # Verify it's actually playing
+                if pygame.mixer.music.get_busy():
+                    print("Music is playing!")
+                else:
+                    print("Warning: Music loaded but not playing. Trying to start again...")
+                    pygame.mixer.music.play(-1)
             else:
-                print(f"Music file '{MUSIC_FILE}' not found in current directory.")
+                print(f"Music files not found. Tried: {MUSIC_FILES}")
                 print(f"Current directory: {os.getcwd()}")
                 print(f"Game will run without music.")
                 self.music_loaded = False
         except Exception as e:
             print(f"Error loading music: {e}")
+            import traceback
+            traceback.print_exc()
             self.music_loaded = False
     
     def reset_game(self):
@@ -546,6 +573,10 @@ class Game:
                 elif event.key == pygame.K_SPACE:
                     if self.state == GameState.MENU:
                         self.state = GameState.PLAYING
+                        # Restart music when game starts
+                        if AUDIO_AVAILABLE and self.music_loaded:
+                            if not pygame.mixer.music.get_busy():
+                                pygame.mixer.music.play(-1)
                     elif self.state == GameState.GAME_OVER:
                         self.state = GameState.MENU
                         self.reset_game()
